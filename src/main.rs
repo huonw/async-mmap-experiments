@@ -20,6 +20,14 @@ fn touch_mm(mm: &memmap2::Mmap) -> u8 {
     sum
 }
 
+fn run_sequential_sync_mmap(mms: Vec<memmap2::Mmap>)  {
+    let mut sum = 0;
+    for mm in &mms {
+        sum += touch_mm(mm);
+    }
+    assert_eq!(sum, 0);
+}
+
 fn run_sync_mmap(mms: Vec<memmap2::Mmap>) {
     let handles: Vec<_> = mms
         .into_iter()
@@ -43,6 +51,12 @@ fn touch_sync_file(mut f: std::fs::File) -> u8 {
         touch_buffer(&buf, read, &mut idx, &mut sum);
     }
     sum
+}
+
+fn run_sequential_sync_file(files: Vec<std::fs::File>) {
+    for f in files {
+        touch_sync_file(f);
+    }
 }
 
 fn run_sync_file(files: Vec<std::fs::File>) {
@@ -74,6 +88,12 @@ async fn touch_async_file(mut f: tokio::fs::File) -> u8 {
     sum
 }
 
+async fn run_sequential_async_file(files: Vec<std::fs::File>) {
+    for f in files {
+        touch_async_file(tokio::fs::File::from_std(f)).await;
+    }
+}
+
 async fn run_async_file(files: Vec<std::fs::File>) {
     futures::future::join_all(
         files
@@ -97,35 +117,42 @@ fn main() {
         .build()
         .unwrap();
 
-    println!("use_async,use_mmap,cold_cache,repeat,duration");
+    println!("use_async,use_mmap,use_parallel,cold_cache,repeat,duration");
     for repeat in 0..NUM_REPEATS {
         for use_async in [true, false] {
             for use_mmap in [true, false] {
-                for cold_cache in [true, false] {
-                    if cold_cache {
-                        drop_caches();
+                for use_parallel in [true, false] {
+                    for cold_cache in [true, false] {
+                        if cold_cache {
+                            drop_caches();
+                        }
+
+                        let files: Vec<_> = (1..=8)
+                            .map(|i| std::fs::File::open(format!("file.{i}")).unwrap())
+                            .collect();
+                        let mms: Vec<_> = files
+                            .iter()
+                            .map(|f| unsafe { memmap2::Mmap::map(f) }.unwrap())
+                            .collect();
+
+                        let start = std::time::Instant::now();
+
+                        match (use_async, use_mmap, use_parallel) {
+                            (false, false, false) => run_sequential_sync_file(files),
+                            (false, false, true) => run_sync_file(files),
+                            (false, true, false) => run_sequential_sync_mmap(mms),
+                            (false, true, true) => run_sync_mmap(mms),
+                            (true, false, false) => rt.block_on(run_sequential_async_file(files)),
+                            (true, false, true) => rt.block_on(run_async_file(files)),
+                            // not implemented
+                            (true, true, false) => continue,
+                            (true, true, true) => rt.block_on(run_async_mmap(mms)),
+                        }
+
+                        let end = std::time::Instant::now();
+                        let duration = (end - start).as_secs_f64();
+                        println!("{use_async},{use_mmap},{use_parallel},{cold_cache},{repeat},{duration:.3}");
                     }
-
-                    let files: Vec<_> = (1..=8)
-                        .map(|i| std::fs::File::open(format!("file.{i}")).unwrap())
-                        .collect();
-                    let mms: Vec<_> = files
-                        .iter()
-                        .map(|f| unsafe { memmap2::Mmap::map(f) }.unwrap())
-                        .collect();
-
-                    let start = std::time::Instant::now();
-
-                    match (use_async, use_mmap) {
-                        (false, false) => run_sync_file(files),
-                        (false, true) => run_sync_mmap(mms),
-                        (true, false) => rt.block_on(run_async_file(files)),
-                        (true, true) => rt.block_on(run_async_mmap(mms)),
-                    }
-
-                    let end = std::time::Instant::now();
-                    let duration = (end - start).as_secs_f64();
-                    println!("{use_async},{use_mmap},{cold_cache},{repeat},{duration:.3}");
                 }
             }
         }
