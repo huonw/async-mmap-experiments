@@ -1,7 +1,7 @@
 use std::io::Read;
 use tokio::io::AsyncReadExt;
 
-const BUF_SIZE: usize = 1 << 18;
+const BUF_SIZE: usize = 1 << 16;
 const STEP_SIZE: usize = 512;
 const NUM_REPEATS: usize = 10;
 
