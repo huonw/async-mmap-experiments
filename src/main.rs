@@ -3,7 +3,7 @@ use tokio::io::AsyncReadExt;
 
 const BUF_SIZE: usize = 1 << 18;
 const STEP_SIZE: usize = 512;
-const NUM_REPEATS: usize = 1;
+const NUM_REPEATS: usize = 10;
 
 fn touch_mm(mm: &memmap2::Mmap) -> u8 {
     let mut sum = 0;
@@ -100,10 +100,10 @@ fn main() {
         .unwrap();
 
     println!("use_async,use_mmap,cold_cache,repeat,duration");
-    for use_async in [true, false] {
-        for use_mmap in [true, false] {
-            for cold_cache in [true, false] {
-                for repeat in 0..NUM_REPEATS {
+    for repeat in 0..NUM_REPEATS {
+        for use_async in [true, false] {
+            for use_mmap in [true, false] {
+                for cold_cache in [true, false] {
                     if cold_cache {
                         drop_caches();
                     }
