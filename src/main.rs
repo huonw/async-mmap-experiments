@@ -5,14 +5,6 @@ const BUF_SIZE: usize = 1 << 18;
 const STEP_SIZE: usize = 512;
 const NUM_REPEATS: usize = 10;
 
-fn touch_mm(mm: &memmap2::Mmap) -> u8 {
-    let mut sum = 0;
-    for idx in (0..mm.len()).step_by(STEP_SIZE) {
-        sum += mm[idx];
-    }
-    sum
-}
-
 fn touch_buffer(buf: &[u8], read: usize, idx: &mut usize, sum: &mut u8) {
     while *idx < read {
         *sum += buf[*idx];
@@ -20,6 +12,12 @@ fn touch_buffer(buf: &[u8], read: usize, idx: &mut usize, sum: &mut u8) {
     }
     // next iteration does needs to be offset by whatever was left over
     *idx %= read;
+}
+
+fn touch_mm(mm: &memmap2::Mmap) -> u8 {
+    let mut sum = 0;
+    touch_buffer(mm, mm.len(), &mut 0, &mut sum);
+    sum
 }
 
 fn run_sync_mmap(mms: Vec<memmap2::Mmap>) {
