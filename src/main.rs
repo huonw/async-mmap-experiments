@@ -3,7 +3,7 @@ use tokio::io::AsyncReadExt;
 
 const BUF_SIZE: usize = 1 << 16;
 const STEP_SIZE: usize = 512;
-const NUM_REPEATS: usize = 10;
+const NUM_REPEATS: usize = 32;
 
 fn touch_buffer(buf: &[u8], read: usize, idx: &mut usize, sum: &mut u8) {
     while *idx < read {
