@@ -20,7 +20,7 @@ fn touch_mm(mm: &memmap2::Mmap) -> u8 {
     sum
 }
 
-fn run_sequential_sync_mmap(mms: Vec<memmap2::Mmap>)  {
+fn run_sequential_sync_mmap(mms: Vec<memmap2::Mmap>) {
     let mut sum = 0;
     for mm in &mms {
         sum += touch_mm(mm);
