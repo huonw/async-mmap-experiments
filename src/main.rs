@@ -128,7 +128,7 @@ fn main() {
                         }
 
                         let files: Vec<_> = (1..=8)
-                            .map(|i| std::fs::File::open(format!("file.{i}")).unwrap())
+                            .map(|i| std::fs::File::open(format!("large-files/file.{i}")).unwrap())
                             .collect();
                         let mms: Vec<_> = files
                             .iter()
