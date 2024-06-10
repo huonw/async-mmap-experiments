@@ -63,6 +63,7 @@ def plot(df_plotting):
         "Memory-mapped IO": colors[0],
         "Conventional IO": colors[1],
     }
+
     fig = px.strip(
         df_plotting,
         x="duration",
@@ -70,7 +71,8 @@ def plot(df_plotting):
         color="io_name",
         color_discrete_map=color_map,
         category_orders={
-            "async_name": ["Async, concurrent", "Sync, 1 thread", "Sync, 8 threads"]
+            "async_name": ["Async, concurrent", "Sync, 1 thread", "Sync, 8 threads"],
+            "io_name": ["Conventional IO", "Memory-mapped IO"],
         },
         labels={
             "duration": "Duration (s)",
@@ -98,7 +100,7 @@ def plot(df_plotting):
             arrowcolor=color_map[row.io_name],
             arrowwidth=1,
             ax=0,
-            ay=(50 if row.io_name == "Memory-mapped IO" else -30),
+            ay=(60 if row.io_name == "Memory-mapped IO" else -30),
             arrowside="none",
             standoff=4,
             font=dict(size=18),
@@ -107,7 +109,7 @@ def plot(df_plotting):
             borderwidth=2,
         )
     print(df_plotting["duration"].max())
-    fig.update_traces(marker=dict(size=8, opacity=0.8), hovertemplate="%{x:.3}s")
+    fig.update_traces(marker=dict(size=8, opacity=0.5), hovertemplate="%{x:.3}s")
     fig.update_layout(
         # The y-axis label is not needed, just go off the tick labels
         yaxis=dict(title=""),
@@ -123,7 +125,6 @@ def plot(df_plotting):
             family="system-ui, -apple-system,'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'",
             size=18,
         ),
-        hovermode="x",
         template=pio.templates["seaborn"],
     )
     # TODO: export the zlib-compressed results as a blog tag
