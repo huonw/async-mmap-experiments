@@ -1,7 +1,43 @@
+import base64
+import json
+import zlib
+import gzip
+
 import argparse
+import numpy as np
 import pandas as pd
+import plotly
 import plotly.express as px
 import plotly.io as pio
+
+
+def dump_json(value):
+    return json.dumps(value, separators=(",", ":"), cls=plotly.utils.PlotlyJSONEncoder)
+
+
+def compress_json(value, compress="zlib"):
+    jsonified = dump_json(value)
+    bytified = jsonified.encode()
+    if compress == "gzip":
+        bytified = gzip.compress(bytified)
+    elif compress == "zlib":
+        bytified = zlib.compress(bytified)
+    b64 = base64.b64encode(bytified).decode()
+    return b64
+
+
+def format_tag(
+    figure, height=300, caption="caption here", optimise=True, compress="zlib"
+):
+    dictified = figure.to_plotly_json()
+    assert isinstance(dictified, dict)
+    assert dictified.keys() == {"data", "layout"}
+
+    if optimise:
+        # set globally
+        del dictified["layout"]["template"]
+    b64 = compress_json(dictified, compress=compress)
+    return f"""{{% include plotly.html height="{height}px" caption="{caption}" data="{b64}" %}}"""
 
 
 def configuration_labels():
@@ -53,11 +89,11 @@ def main():
         on=["use_async", "use_parallel", "use_mmap"],
         how="inner",
     )
-    plot(df_labelled.query("cold_cache == False"))
-    plot(df_labelled.query("cold_cache == True"))
+    plot(df_labelled.query("cold_cache == False"), caption="Warm cache")
+    plot(df_labelled.query("cold_cache == True"), caption="Cold cache")
 
 
-def plot(df_plotting):
+def plot(df_plotting, caption):
     colors = px.colors.qualitative.Plotly
     color_map = {
         "Memory-mapped IO": colors[0],
@@ -129,6 +165,7 @@ def plot(df_plotting):
     )
     # TODO: export the zlib-compressed results as a blog tag
     fig.show()
+    print(format_tag(fig, caption=caption))
 
 
 if __name__ == "__main__":
