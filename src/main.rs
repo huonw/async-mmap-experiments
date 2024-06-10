@@ -151,7 +151,7 @@ fn main() {
 
                         let end = std::time::Instant::now();
                         let duration = (end - start).as_secs_f64();
-                        println!("{use_async},{use_mmap},{use_parallel},{cold_cache},{repeat},{duration:.3}");
+                        println!("{use_async},{use_mmap},{use_parallel},{cold_cache},{repeat},{duration:.4}");
                     }
                 }
             }
