@@ -1,9 +1,9 @@
 use std::io::Read;
 use tokio::io::AsyncReadExt;
 
-const BUF_SIZE: usize = 1 << 16;
+const BUF_SIZE: usize = 1 << 11;
 const STEP_SIZE: usize = 512;
-const NUM_REPEATS: usize = 32;
+const NUM_REPEATS: usize = 1024;
 
 fn touch_buffer(buf: &[u8], read: usize, idx: &mut usize, sum: &mut u8) {
     while *idx < read {
