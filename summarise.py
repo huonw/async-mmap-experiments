@@ -145,7 +145,11 @@ def plot(df_plotting, caption):
             borderwidth=2,
         )
     print(df_plotting["duration"].max())
-    fig.update_traces(marker=dict(size=8, opacity=0.5), hovertemplate="%{x:.3}s")
+    fig.update_traces(
+        marker=dict(size=8, opacity=0.5),
+        hovertemplate="%{x:.4}s",
+        jitter=1,
+    )
     fig.update_layout(
         # The y-axis label is not needed, just go off the tick labels
         yaxis=dict(title=""),
