@@ -149,8 +149,10 @@ def plot(df_plotting, caption):
     fig.update_layout(
         # The y-axis label is not needed, just go off the tick labels
         yaxis=dict(title=""),
-        # always start from 0
-        xaxis=dict(range=[0, df_plotting["duration"].max() * 1.01]),
+        xaxis=dict(
+            # always start from 0
+            rangemode="tozero",
+        ),
         # limited space, so put the legend along the top
         legend=dict(
             title="", orientation="h", yanchor="bottom", y=1.0, xanchor="left", x=0
