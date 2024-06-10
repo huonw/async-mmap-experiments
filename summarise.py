@@ -150,6 +150,9 @@ def plot(df_plotting, caption):
         hovertemplate="%{x:.4}s",
         jitter=1,
     )
+
+    # same as blog
+    font_family = "system-ui, -apple-system,'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'"
     fig.update_layout(
         # The y-axis label is not needed, just go off the tick labels
         yaxis=dict(title=""),
@@ -162,11 +165,8 @@ def plot(df_plotting, caption):
             title="", orientation="h", yanchor="bottom", y=1.0, xanchor="left", x=0
         ),
         margin=dict(t=20, b=20, l=0, r=0),
-        font=dict(
-            # same as blog
-            family="system-ui, -apple-system,'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'",
-            size=18,
-        ),
+        font=dict(family=font_family, size=14),
+        hoverlabel=dict(font_family=font_family),
         template=pio.templates["seaborn"],
     )
     # TODO: export the zlib-compressed results as a blog tag
