@@ -117,33 +117,6 @@ def plot(df_plotting, caption):
         },
         stripmode="overlay",
     )
-    # Call out the minimums with text
-    minimums = (
-        df_plotting.groupby(["async_name", "io_name"])["duration"].min().reset_index()
-    )
-    for row in minimums.itertuples():
-        fig.add_annotation(
-            x=row.duration,
-            y=row.async_name,
-            text=(
-                f"{row.duration:#.3}s"
-                if row.duration > 0.1
-                else f"{row.duration * 1000:#.3}ms"
-            ),
-            xanchor="right",
-            yanchor="bottom",
-            showarrow=True,
-            arrowcolor=color_map[row.io_name],
-            arrowwidth=1,
-            ax=0,
-            ay=(60 if row.io_name == "Memory-mapped IO" else -30),
-            arrowside="none",
-            standoff=4,
-            font=dict(size=18),
-            bordercolor=color_map[row.io_name],
-            borderpad=2,
-            borderwidth=2,
-        )
     print(df_plotting["duration"].max())
     fig.update_traces(
         marker=dict(size=8, opacity=0.5),
