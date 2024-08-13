@@ -132,6 +132,7 @@ def plot(df_plotting, caption):
         xaxis=dict(
             # always start from 0
             rangemode="tozero",
+            title=dict(font=dict(family=font_family, size=14)),
         ),
         # limited space, so put the legend along the top
         legend=dict(
